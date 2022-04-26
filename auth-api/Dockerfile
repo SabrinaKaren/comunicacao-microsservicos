@@ -1,5 +1,5 @@
 FROM node:16
-WORKDIR .
+WORKDIR /.
 COPY package*.json ./
 RUN yarn
 COPY . .
