@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import User from '../../modules/user/model/User';
+import User from '../../modules/user/model/User.js';
 
 export async function createInitialData() {
     try {
@@ -12,7 +12,7 @@ export async function createInitialData() {
             email: 'usuario.inicial@email.com',
             password: passwordCrypted
         });
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error(error.message);
     }
 }

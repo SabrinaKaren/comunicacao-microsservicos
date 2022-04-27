@@ -16,9 +16,9 @@ const sequelize = new Sequelize('auth-db', 'admin', '123456', {
 sequelize.authenticate()
     .then(() => {
         console.info('Conection has been stablished!');
-    }).catch((err) => {
+    }).catch((error) => {
         console.error('Unable to connect to the database!');
-        console.error(err.message);
+        console.error(error.message);
     });
 
 export default sequelize;
