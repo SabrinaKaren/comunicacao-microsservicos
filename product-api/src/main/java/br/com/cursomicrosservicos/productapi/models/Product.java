@@ -23,8 +23,8 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     
-    @Column(name = "DESCRIPTION", nullable = false)
-    private String description;
+    @Column(name = "NAME", nullable = false)
+    private String name;
 
     @ManyToOne
     @JoinColumn(name = "FK_SUPPLIER", nullable = false)
@@ -33,5 +33,8 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "FK_CATEGORY", nullable = false)
     private Category category;
+
+    @Column(name = "QUANTITY_AVAILABLE", nullable = false)
+    private Integer quantityAvailable;
     
 }
