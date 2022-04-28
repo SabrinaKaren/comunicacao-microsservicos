@@ -7,7 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.springframework.beans.BeanUtils;
-import br.com.cursomicrosservicos.productapi.dto.CategoryRequest;
+import br.com.cursomicrosservicos.productapi.dto.category.CategoryRequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

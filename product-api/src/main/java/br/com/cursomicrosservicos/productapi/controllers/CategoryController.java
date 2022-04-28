@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import br.com.cursomicrosservicos.productapi.dto.CategoryRequest;
-import br.com.cursomicrosservicos.productapi.dto.CategoryResponse;
+import br.com.cursomicrosservicos.productapi.dto.category.CategoryRequest;
+import br.com.cursomicrosservicos.productapi.dto.category.CategoryResponse;
 import br.com.cursomicrosservicos.productapi.services.CategoryService;
 
 @RestController

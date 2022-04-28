@@ -1,4 +1,4 @@
-package br.com.cursomicrosservicos.productapi.dto;
+package br.com.cursomicrosservicos.productapi.dto.category;
 
 import org.springframework.beans.BeanUtils;
 import br.com.cursomicrosservicos.productapi.models.Category;
