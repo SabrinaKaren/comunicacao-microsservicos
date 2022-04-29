@@ -1,5 +1,7 @@
 package br.com.cursomicrosservicos.productapi.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import br.com.cursomicrosservicos.productapi.config.exceptions.ExceptionValidation;
@@ -29,6 +31,64 @@ public class ProductService {
 
         Product productSaved = productRepository.save(Product.of(productRequest, category, supplier));
         return ProductResponse.of(productSaved);
+    }
+
+    public Product findById(Integer id) {
+        if (id == null) {
+            throw new ExceptionValidation("The id must be informed.");
+        }
+
+        return productRepository
+            .findById(id)
+            .orElseThrow(() -> new ExceptionValidation("There's no product for the given ID."));
+    }
+
+    public List<ProductResponse> findAll() {
+        return productRepository
+            .findAll()
+            .stream()
+            .map(ProductResponse::of)
+            .collect(Collectors.toList());
+    }
+
+    public ProductResponse findByIdResponse(Integer id) {
+        return ProductResponse.of(findById(id));
+    }
+
+    public List<ProductResponse> findByName(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new ExceptionValidation("The name must be informed.");
+        }
+
+        return productRepository
+            .findByNameIgnoreCaseContaining(name)
+            .stream()
+            .map(ProductResponse::of)
+            .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> findByCategoryId(Integer categoryId) {
+        if (categoryId == null) {
+            throw new ExceptionValidation("The categoryId must be informed.");
+        }
+
+        return productRepository
+            .findByCategoryId(categoryId)
+            .stream()
+            .map(ProductResponse::of)
+            .collect(Collectors.toList());
+    }
+
+    public List<ProductResponse> findBySupplierId(Integer supplierId) {
+        if (supplierId == null) {
+            throw new ExceptionValidation("The supplierId must be informed.");
+        }
+
+        return productRepository
+            .findBySupplierId(supplierId)
+            .stream()
+            .map(ProductResponse::of)
+            .collect(Collectors.toList());
     }
 
     /* Validadores */

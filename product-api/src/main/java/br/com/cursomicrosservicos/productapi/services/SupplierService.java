@@ -1,5 +1,7 @@
 package br.com.cursomicrosservicos.productapi.services;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import br.com.cursomicrosservicos.productapi.config.exceptions.ExceptionValidation;
@@ -21,9 +23,37 @@ public class SupplierService {
     }
 
     public Supplier findById(Integer id) {
+        if (id == null) {
+            throw new ExceptionValidation("The id must be informed.");
+        }
+
         return supplierRepository
             .findById(id)
             .orElseThrow(() -> new ExceptionValidation("There's no supplier for the given ID."));
+    }
+
+    public List<SupplierResponse> findAll() {
+        return supplierRepository
+            .findAll()
+            .stream()
+            .map(SupplierResponse::of)
+            .collect(Collectors.toList());
+    }
+
+    public SupplierResponse findByIdResponse(Integer id) {
+        return SupplierResponse.of(findById(id));
+    }
+
+    public List<SupplierResponse> findByName(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new ExceptionValidation("The name must be informed.");
+        }
+
+        return supplierRepository
+            .findByName(name)
+            .stream()
+            .map(SupplierResponse::of)
+            .collect(Collectors.toList());
     }
 
     /* Validadores */
