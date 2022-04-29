@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import br.com.cursomicrosservicos.productapi.config.exceptions.ExceptionValidation;
+import br.com.cursomicrosservicos.productapi.config.success.SuccessResponse;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductRequest;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductResponse;
 import br.com.cursomicrosservicos.productapi.models.Category;
@@ -34,10 +35,7 @@ public class ProductService {
     }
 
     public Product findById(Integer id) {
-        if (id == null) {
-            throw new ExceptionValidation("The id must be informed.");
-        }
-
+        validateInformedId(id);
         return productRepository
             .findById(id)
             .orElseThrow(() -> new ExceptionValidation("There's no product for the given ID."));
@@ -91,6 +89,25 @@ public class ProductService {
             .collect(Collectors.toList());
     }
 
+    public SuccessResponse delete(Integer id) {
+        validateInformedId(id);
+        productRepository.deleteById(id);
+        return SuccessResponse.create("The product was deleted.");
+    }
+
+    public ProductResponse update(ProductRequest productRequest, Integer id) {
+        validateInformedId(id);
+        validateProduct(productRequest);
+
+        Category category = categoryService.findById(productRequest.getCategoryId());
+        Supplier supplier = supplierService.findById(productRequest.getSupplierId());
+        Product product = Product.of(productRequest, category, supplier);
+        product.setId(id);
+
+        productRepository.save(product);
+        return ProductResponse.of(product);
+    }
+
     /* Validadores */
 
     private void validateProduct(ProductRequest productRequest) {
@@ -123,6 +140,12 @@ public class ProductService {
         }
         if (productRequest.getSupplierId() == null) {
             throw new ExceptionValidation("The product supplier was not informed.");
+        }
+    }
+
+    private void validateInformedId(Integer id) {
+        if (id == null) {
+            throw new ExceptionValidation("The id must be informed.");
         }
     }
     
