@@ -37,10 +37,10 @@ app-config:
         api-secret: ${API_SECRET:ewqedkJHDSAD5454SDFSDFUJUHDEJKfdsfsdfsdf=}
     rabbit:
         exchange:
-        product: product.topic
-    routingKey:
-        product-stock: product-stock-update.routingKey
-        sales-confirmation: sales-confirmation.routingKey
-    queue:
-        product-stock: product-stock-update.queue
-        sales-confirmation: sales-confirmation.queue
+            product: product.topic
+        routingKey:
+            product-stock: product-stock-update.routingKey
+            sales-confirmation: sales-confirmation.routingKey
+        queue:
+            product-stock: product-stock-update.queue
+            sales-confirmation: sales-confirmation.queue

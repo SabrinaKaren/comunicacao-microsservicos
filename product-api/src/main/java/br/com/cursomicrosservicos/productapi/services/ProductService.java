@@ -8,6 +8,7 @@ import br.com.cursomicrosservicos.productapi.config.exceptions.ExceptionValidati
 import br.com.cursomicrosservicos.productapi.config.success.SuccessResponse;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductRequest;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductResponse;
+import br.com.cursomicrosservicos.productapi.dto.product.ProductStockDto;
 import br.com.cursomicrosservicos.productapi.models.Category;
 import br.com.cursomicrosservicos.productapi.models.Product;
 import br.com.cursomicrosservicos.productapi.models.Supplier;
@@ -106,6 +107,10 @@ public class ProductService {
 
         productRepository.save(product);
         return ProductResponse.of(product);
+    }
+
+    public void updateProductStock(ProductStockDto productStockDto) {
+
     }
 
     /* Validadores */
