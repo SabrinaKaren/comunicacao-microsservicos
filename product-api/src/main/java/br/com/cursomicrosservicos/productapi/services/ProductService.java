@@ -1,20 +1,29 @@
 package br.com.cursomicrosservicos.productapi.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.com.cursomicrosservicos.productapi.config.exceptions.ExceptionValidation;
 import br.com.cursomicrosservicos.productapi.config.success.SuccessResponse;
+import br.com.cursomicrosservicos.productapi.dto.product.ProductQuantityDto;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductRequest;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductResponse;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductStockDto;
+import br.com.cursomicrosservicos.productapi.dto.sale.SaleConfirmationDto;
+import br.com.cursomicrosservicos.productapi.enums.SaleStatus;
 import br.com.cursomicrosservicos.productapi.models.Category;
 import br.com.cursomicrosservicos.productapi.models.Product;
 import br.com.cursomicrosservicos.productapi.models.Supplier;
+import br.com.cursomicrosservicos.productapi.rabbitmq.SaleConfirmationSender;
 import br.com.cursomicrosservicos.productapi.repositories.ProductRepository;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class ProductService {
 
     @Autowired
@@ -25,6 +34,9 @@ public class ProductService {
 
     @Autowired
     private SupplierService supplierService;
+
+    @Autowired
+    private SaleConfirmationSender saleConfirmationSender;
 
     public ProductResponse save(ProductRequest productRequest) {
         validateProduct(productRequest);
@@ -111,6 +123,38 @@ public class ProductService {
 
     public void updateProductStock(ProductStockDto productStockDto) {
 
+        try {
+            validateStockUpdateData(productStockDto);
+            updateStock(productStockDto);
+        } catch (Exception e) {
+            log.error("Error while trying to update stock for message with error: {}", e.getMessage(), e);
+
+            // comunicar com o RabbitMQ
+            SaleConfirmationDto rejectedMessage = new SaleConfirmationDto(productStockDto.getSalesId(), SaleStatus.REJECTED);
+            saleConfirmationSender.sendSalesConfirmationMessage(rejectedMessage);
+        }
+
+    }
+
+    @Transactional
+    public void updateStock(ProductStockDto productStockDto) {
+        List<Product> productsToUpdate = new ArrayList<Product>();
+
+        productStockDto.getProducts().forEach(item -> {
+            Product existingProduct = findById(item.getProductId());
+            validateInformedId(item, existingProduct);
+
+            existingProduct.downStock(item.getQuantity());
+            productsToUpdate.add(existingProduct);
+        });
+
+        if (!productsToUpdate.isEmpty()) {
+            productRepository.saveAll(productsToUpdate);
+
+            // comunicar com o RabbitMQ
+            SaleConfirmationDto approvedMessage = new SaleConfirmationDto(productStockDto.getSalesId(), SaleStatus.APPROVED);
+            saleConfirmationSender.sendSalesConfirmationMessage(approvedMessage);
+        }
     }
 
     /* Validadores */
@@ -151,6 +195,26 @@ public class ProductService {
     private void validateInformedId(Integer id) {
         if (id == null) {
             throw new ExceptionValidation("The id must be informed.");
+        }
+    }
+
+    private void validateStockUpdateData(ProductStockDto productStockDto) {
+        if (productStockDto == null || productStockDto.getSalesId() == null || productStockDto.getSalesId().isEmpty()) {
+            throw new ExceptionValidation("The product data and the sales id must be informed.");
+        }
+        if (productStockDto.getProducts() == null || productStockDto.getProducts().isEmpty()) {
+            throw new ExceptionValidation("The sales' product must be informed.");
+        }
+        productStockDto.getProducts().forEach(item -> {
+            if (item.getQuantity() == null || item.getProductId() == null) {
+                throw new ExceptionValidation("The product id and the quantity must be informed.");
+            }
+        });
+    }
+
+    private void validateInformedId(ProductQuantityDto productQuantityDto, Product existingProduct) {
+        if (productQuantityDto.getQuantity() > existingProduct.getQuantityAvailable()) {
+            throw new ExceptionValidation(String.format("The product %s is out of stock.", existingProduct.getId()));
         }
     }
     
