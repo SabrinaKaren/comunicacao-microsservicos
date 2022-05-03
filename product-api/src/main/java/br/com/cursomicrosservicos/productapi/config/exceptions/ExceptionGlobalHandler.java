@@ -15,5 +15,13 @@ public class ExceptionGlobalHandler {
         datails.setMessage(exceptionValidation.getMessage());
         return new ResponseEntity<>(datails, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ExceptionAuthentication.class)
+    public ResponseEntity<?> handleValidationException(ExceptionAuthentication exceptionAuthentication) {
+        ExceptionDatails datails = new ExceptionDatails();
+        datails.setStatus(HttpStatus.UNAUTHORIZED.value());
+        datails.setMessage(exceptionAuthentication.getMessage());
+        return new ResponseEntity<>(datails, HttpStatus.BAD_REQUEST);
+    }
     
 }
