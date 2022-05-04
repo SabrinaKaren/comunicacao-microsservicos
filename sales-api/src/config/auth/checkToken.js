@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
-import { API_SECRET } from "../secrets/secrets.js";
-import { UNAUTHORIZED, INTERNAL_SERVER_ERROR } from "../httpStatus.js";
+import { API_SECRET } from "../constants/secrets.js";
+import { UNAUTHORIZED, INTERNAL_SERVER_ERROR } from "../constants/httpStatus.js";
 import AuthException from "./AuthException.js";
 
 export default async (req, res, next) => {
