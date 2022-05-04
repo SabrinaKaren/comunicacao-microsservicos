@@ -10,7 +10,7 @@ export function listenToSalesConfirmationQueue() {
             throw error;
         }
 
-        console.info("Listening to Sales Confirmation Queue...");
+        console.info("----------| Listening to Sales Confirmation Queue...");
         connection.createChannel((error, channel) => {
             if (error) {
                 throw error;
@@ -18,7 +18,7 @@ export function listenToSalesConfirmationQueue() {
             channel.consume(
                 SALES_CONFIRMATION_QUEUE,
                 (message) => {
-                    console.info(`Recieving message from queue: ${message.content.toString()}`);
+                    console.info(`----------| Recieving message from queue: ${message.content.toString()}`);
                     // OrderService.updateOrder(message.content.toString());
                 },
                 {
