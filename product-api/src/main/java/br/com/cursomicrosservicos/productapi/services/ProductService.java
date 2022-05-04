@@ -7,13 +7,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.cursomicrosservicos.productapi.clients.SaleClient;
 import br.com.cursomicrosservicos.productapi.config.exceptions.ExceptionValidation;
 import br.com.cursomicrosservicos.productapi.config.success.SuccessResponse;
+import br.com.cursomicrosservicos.productapi.dto.product.ProductCheckStockRequest;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductQuantityDto;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductRequest;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductResponse;
+import br.com.cursomicrosservicos.productapi.dto.product.ProductSaleResponse;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductStockDto;
 import br.com.cursomicrosservicos.productapi.dto.sale.SaleConfirmationDto;
+import br.com.cursomicrosservicos.productapi.dto.sale.SaleProductResponse;
 import br.com.cursomicrosservicos.productapi.enums.SaleStatus;
 import br.com.cursomicrosservicos.productapi.models.Category;
 import br.com.cursomicrosservicos.productapi.models.Product;
@@ -37,6 +41,9 @@ public class ProductService {
 
     @Autowired
     private SaleConfirmationSender saleConfirmationSender;
+
+    @Autowired
+    private SaleClient saleClient;
 
     public ProductResponse save(ProductRequest productRequest) {
         validateProduct(productRequest);
@@ -157,6 +164,26 @@ public class ProductService {
         }
     }
 
+    public SuccessResponse checkProductStock(ProductCheckStockRequest productCheckStockRequest) {
+        if (productCheckStockRequest == null || productCheckStockRequest.getProducts() == null || productCheckStockRequest.getProducts().isEmpty()) {
+            throw new ExceptionValidation("The request data and products must be informed.");
+        }
+        productCheckStockRequest.getProducts().forEach(this::validateStock);
+        return SuccessResponse.create("The stock is ok.");
+    }
+
+    public ProductSaleResponse findProductSales(Integer id) {
+        Product product = findById(id);
+        try {
+            SaleProductResponse sales = saleClient.findSalesByProductId(product.getId())
+                .orElseThrow(() -> new ExceptionValidation("The sales was not found by this product."));
+                
+            return ProductSaleResponse.of(product, sales.getSalesId());
+        } catch (Exception e) {
+            throw new ExceptionValidation("There was an error trying to get the product's sales.");
+        }
+    }
+
     /* Validadores */
 
     private void validateProduct(ProductRequest productRequest) {
@@ -215,6 +242,16 @@ public class ProductService {
     private void validateInformedId(ProductQuantityDto productQuantityDto, Product existingProduct) {
         if (productQuantityDto.getQuantity() > existingProduct.getQuantityAvailable()) {
             throw new ExceptionValidation(String.format("The product %s is out of stock.", existingProduct.getId()));
+        }
+    }
+
+    private void validateStock(ProductQuantityDto productQuantityDto) {
+        if (productQuantityDto == null || productQuantityDto.getProductId() == null || productQuantityDto.getQuantity() == null) {
+            throw new ExceptionValidation("Product id and quantity must be informed.");
+        }
+        Product product = findById(productQuantityDto.getProductId());
+        if (productQuantityDto.getQuantity() > product.getQuantityAvailable()) {
+            throw new ExceptionValidation(String.format("The product %s is out of stock.", product.getId()));
         }
     }
     

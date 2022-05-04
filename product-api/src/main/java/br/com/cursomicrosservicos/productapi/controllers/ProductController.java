@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import br.com.cursomicrosservicos.productapi.config.success.SuccessResponse;
+import br.com.cursomicrosservicos.productapi.dto.product.ProductCheckStockRequest;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductRequest;
 import br.com.cursomicrosservicos.productapi.dto.product.ProductResponse;
+import br.com.cursomicrosservicos.productapi.dto.product.ProductSaleResponse;
 import br.com.cursomicrosservicos.productapi.services.ProductService;
 
 @RestController
@@ -60,6 +62,16 @@ public class ProductController {
     @PutMapping("{id}")
     public ProductResponse update(@RequestBody ProductRequest productRequest, @PathVariable Integer id) {
         return productService.update(productRequest, id);
+    }
+
+    @PostMapping("check-stock")
+    public SuccessResponse checkProductStock(@RequestBody ProductCheckStockRequest productCheckStockRequest) {
+        return productService.checkProductStock(productCheckStockRequest);
+    }
+
+    @GetMapping("{id}/sales")
+    public ProductSaleResponse findProductSales(@PathVariable Integer id) {
+        return productService.findProductSales(id);
     }
     
 }
