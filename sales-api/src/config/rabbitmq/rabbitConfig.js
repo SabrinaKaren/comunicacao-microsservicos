@@ -7,10 +7,15 @@ import {
     SALES_CONFIRMATION_ROUTING_KEY,
 } from "./queue.js";
 import { RABBIT_MQ_URL } from "../constants/secrets.js";
+import { listenToSalesConfirmationQueue } from "../../modules/sales/rabbitmq/saleConfirmationListener.js";
 
 const TWO_SECONDS = 2000;
 
 export async function connectRabbitMq() {
+    connectRabbitMqAndCreateQueues();
+}
+
+async function connectRabbitMqAndCreateQueues() {
 
     amqp.connect(RABBIT_MQ_URL, { timeout: 180000 }, (error, connection) => {
 
@@ -39,9 +44,9 @@ export async function connectRabbitMq() {
 
     });
 
-    /* setTimeout(function () {
+    setTimeout(function () {
         listenToSalesConfirmationQueue();
-    }, TWO_SECONDS); */
+    }, TWO_SECONDS);
 
 }
 
