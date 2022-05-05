@@ -12,5 +12,6 @@ public class SaleConfirmationDto {
 
     private String salesId;
     private SaleStatus status;
+    private String transactionid;
     
 }

@@ -3,10 +3,11 @@ package br.com.cursomicrosservicos.productapi.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import br.com.cursomicrosservicos.productapi.clients.SaleClient;
 import br.com.cursomicrosservicos.productapi.config.exceptions.ExceptionValidation;
 import br.com.cursomicrosservicos.productapi.config.success.SuccessResponse;
@@ -25,10 +26,15 @@ import br.com.cursomicrosservicos.productapi.models.Supplier;
 import br.com.cursomicrosservicos.productapi.rabbitmq.SaleConfirmationSender;
 import br.com.cursomicrosservicos.productapi.repositories.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
+import static br.com.cursomicrosservicos.productapi.config.RequestUtil.getCurrentRequest;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 @Slf4j
 public class ProductService {
+
+    private static final String TRANSACTION_ID = "transactionid";
+    private static final String SERVICE_ID = "serviceid";
 
     @Autowired
     private ProductRepository productRepository;
@@ -134,10 +140,10 @@ public class ProductService {
             validateStockUpdateData(productStockDto);
             updateStock(productStockDto);
         } catch (Exception e) {
-            log.error("Error while trying to update stock for message with error: {}", e.getMessage(), e);
+            log.error("|xxxxx Error while trying to update stock for message with error: {}", e.getMessage(), e);
 
             // comunicar com o RabbitMQ
-            SaleConfirmationDto rejectedMessage = new SaleConfirmationDto(productStockDto.getSalesId(), SaleStatus.REJECTED);
+            SaleConfirmationDto rejectedMessage = new SaleConfirmationDto(productStockDto.getSalesId(), SaleStatus.REJECTED, productStockDto.getTransactionid());
             saleConfirmationSender.sendSalesConfirmationMessage(rejectedMessage);
         }
 
@@ -159,17 +165,37 @@ public class ProductService {
             productRepository.saveAll(productsToUpdate);
 
             // comunicar com o RabbitMQ
-            SaleConfirmationDto approvedMessage = new SaleConfirmationDto(productStockDto.getSalesId(), SaleStatus.APPROVED);
+            SaleConfirmationDto approvedMessage = new SaleConfirmationDto(productStockDto.getSalesId(), SaleStatus.APPROVED, productStockDto.getTransactionid());
             saleConfirmationSender.sendSalesConfirmationMessage(approvedMessage);
         }
     }
 
     public SuccessResponse checkProductStock(ProductCheckStockRequest productCheckStockRequest) {
-        if (productCheckStockRequest == null || productCheckStockRequest.getProducts() == null || productCheckStockRequest.getProducts().isEmpty()) {
-            throw new ExceptionValidation("The request data and products must be informed.");
+
+        try {
+            HttpServletRequest currentRequest = getCurrentRequest();
+            String transactionid = currentRequest.getHeader(TRANSACTION_ID);
+            var serviceid = currentRequest.getAttribute(SERVICE_ID);
+
+            log.info("|>>>>> Request to POST product stock with data {} | transactionId: {} | serviceId: {}",
+                new ObjectMapper().writeValueAsString(productCheckStockRequest), transactionid, serviceid);
+
+            if (isEmpty(productCheckStockRequest) || isEmpty(productCheckStockRequest.getProducts())) {
+                throw new ExceptionValidation("The request data and products must be informed.");
+            }
+            productCheckStockRequest
+                .getProducts()
+                .forEach(this::validateStock);
+            var response = SuccessResponse.create("The stock is ok!");
+
+            log.info("|<<<<< Response to POST product stock: {} | transactionId: {} | serviceId: {}",
+                new ObjectMapper().writeValueAsString(response), transactionid, serviceid);
+
+            return response;
+        } catch (Exception ex) {
+            throw new ExceptionValidation(ex.getMessage());
         }
-        productCheckStockRequest.getProducts().forEach(this::validateStock);
-        return SuccessResponse.create("The stock is ok.");
+
     }
 
     public ProductSaleResponse findProductSales(Integer id) {

@@ -23,11 +23,11 @@ public class SaleConfirmationSender {
 
     public void sendSalesConfirmationMessage(SaleConfirmationDto saleConfirmationDto) {
         try {
-            log.info("Sending message: {}", new ObjectMapper().writeValueAsString(saleConfirmationDto));
+            log.info("|----- Sending message: {}", new ObjectMapper().writeValueAsString(saleConfirmationDto));
             rabbitTemplate.convertAndSend(productTopicExchange, salesConfirmationKey, saleConfirmationDto);
-            log.info("Message was sent successfully!");
+            log.info("|----- Message was sent successfully!");
         } catch (Exception e) {
-            log.info("Error while trying to send sales confirmation message: ", e);
+            log.info("|xxxxx Error while trying to send sales confirmation message: ", e);
         }
     }
     
