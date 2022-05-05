@@ -7,9 +7,8 @@ class ProductClient {
 
         try {
 
-            // const headers = { Authorization: token, transactionid };
-            const headers = { Authorization: token };
-            console.info(`Sending request to Product API with data: ${JSON.stringify(productsData)} and transactionID ${transactionid}`);
+            const headers = { Authorization: token, transactionid };
+            console.info(`|>>>>> Sending request to Product-API with data ${JSON.stringify(productsData)} | transactionId: ${transactionid}`);
             let response = false;
 
             await axios
@@ -19,19 +18,18 @@ class ProductClient {
                     { headers }
                 )
                 .then((res) => {
-                    console.info(`Success response from Product-API. TransactionID: ${transactionid}`);
+                    console.info(`|----- Success in response from Product-API. TransactionId: ${transactionid}`);
                     response = true;
                 })
                 .catch((err) => {
-                    console.error(`Error response from Product-API. TransactionID: ${transactionid}`);
-                    console.log(JSON.stringify(err));
+                    console.error(`|xxxxx Error in response from Product-API: ${JSON.stringify(err)} | transactionId: ${transactionid}`);
                     response = false;
                 });
 
             return response;
 
         } catch (err) {
-            console.error(`Error response from Product-API. TransactionID: ${transactionid}`);
+            console.error(`|xxxxx Error when trying to request Product-API: ${JSON.stringify(err)} | transactionId: ${transactionid}`);
             return false;
         }
 

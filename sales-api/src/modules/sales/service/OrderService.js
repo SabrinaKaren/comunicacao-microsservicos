@@ -11,9 +11,11 @@ class OrderService {
         try {
 
             let orderData = req.body;
+
             const { transactionid, serviceid } = req.headers;
-            console.info(`Request to POST new order with data ${JSON.stringify(orderData)}
-                | [transactionID: ${transactionid} | serviceID: ${serviceid}]`);
+            console.info(
+                `|>>>>> Request to POST order with data ${JSON.stringify(orderData)} | transactionId: ${transactionid} | serviceId: ${serviceid}`
+            );
 
             this.validateOrderData(orderData);
             const { authUser } = req;
@@ -30,8 +32,10 @@ class OrderService {
             this.sendMessage(createdOrder, transactionid);
 
             let response = { status: SUCCESS, createdOrder };
-            console.info(`Response to POST login with data ${JSON.stringify(response)}
-                | [transactionID: ${transactionid} | serviceID: ${serviceid}]`);
+
+            console.info(
+                `|<<<<< Response to POST order: ${JSON.stringify(response)} | transactionId: ${transactionid} | serviceId: ${serviceid}`
+            );
 
             return response;
 
@@ -66,11 +70,10 @@ class OrderService {
                     await OrderRepository.save(existingOrder);
                 }
             } else {
-                console.warn(`The order message was not complete. TransactionID: ${orderMessage.transactionid}`);
+                console.warn(`|xxxxx The order message was not complete. TransactionId: ${orderMessage.transactionid}`);
             }
         } catch (err) {
-            console.error("Could not parse order message from queue.");
-            console.error(err.message);
+            console.error(`|xxxxx Error creating initial data: ${err.message}`);
         }
     }
 
@@ -100,7 +103,8 @@ class OrderService {
         try {
             const { id } = req.params;
             const { transactionid, serviceid } = req.headers;
-            console.info(`Request to GET order by ID ${id} | [transactionID: ${transactionid} | serviceID: ${serviceid}]`);
+
+            console.info(`|>>>>> Request to GET order by Id ${id} | transactionId: ${transactionid} | serviceId: ${serviceid}`);
 
             this.validateInformedId(id);
             const existingOrder = await OrderRepository.findById(id);
@@ -109,8 +113,8 @@ class OrderService {
             }
 
             let response = { status: SUCCESS, existingOrder };
-            console.info(`Response to GET order by ID ${id}: ${JSON.stringify(response)}
-                | [transactionID: ${transactionid} | serviceID: ${serviceid}]`);
+
+            console.info(`|<<<<< Response to GET order by Id ${id}: ${JSON.stringify(response)} | transactionId: ${transactionid} | serviceId: ${serviceid}`);
 
             return response;
         } catch (err) {
@@ -123,8 +127,10 @@ class OrderService {
 
     async findAll(req) {
         try {
+
             const { transactionid, serviceid } = req.headers;
-            console.info(`Request to GET all orders | [transactionID: ${transactionid} | serviceID: ${serviceid}]`);
+            console.info(`|>>>>> Request to GET all orders | transactionId: ${transactionid} | serviceId: ${serviceid}`);
+            
             const orders = await OrderRepository.findAll();
 
             if (!orders) {
@@ -132,10 +138,11 @@ class OrderService {
             }
 
             let response = { status: SUCCESS, orders };
-            console.info(`Response to GET all orders: ${JSON.stringify(response)}
-                | [transactionID: ${transactionid} | serviceID: ${serviceid}]`);
+
+            console.info(`|<<<<< Response to GET all orders: ${JSON.stringify(response)} | transactionId: ${transactionid} | serviceId: ${serviceid}`);
             
-                return response;
+            return response;
+
         } catch (err) {
             return {
                 status: err.status ? err.status : INTERNAL_SERVER_ERROR,
@@ -148,7 +155,7 @@ class OrderService {
         try {
             const { productId } = req.params;
             const { transactionid, serviceid } = req.headers;
-            console.info(`Request to GET orders by productID ${productId} | [transactionID: ${transactionid} | serviceID: ${serviceid}]`);
+            console.info(`|>>>>> Request to GET order by productId ${id} | transactionId: ${transactionid} | serviceId: ${serviceid}`);
 
             this.validateInformedProductId(productId);
             const orders = await OrderRepository.findByProductId(productId);
@@ -159,10 +166,10 @@ class OrderService {
             let response = { status: SUCCESS, salesId: orders.map((order) => {
                 return order.id;
             })};
-            console.info(`Response to GET orders by productID ${productId}: ${JSON.stringify(response)}
-                | [transactionID: ${transactionid} | serviceID: ${serviceid}]`);
+
+            console.info(`|<<<<< Response to GET order by productId ${id}: ${JSON.stringify(response)} | transactionId: ${transactionid} | serviceId: ${serviceid}`);
             
-                return response;
+            return response;
         } catch (err) {
             return {
                 status: err.status ? err.status : INTERNAL_SERVER_ERROR,

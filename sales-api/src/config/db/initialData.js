@@ -1,11 +1,12 @@
 import Order from "../../modules/sales/models/Order.js";
+import { v4 as uuidv4 } from "uuid";
 
 export async function createInitialData() {
 
-    console.log("----------| initialData.createInitialData() - antes do drop");
+    console.info("|----- Dropping collection in mongoDB.");
     await Order.collection.drop();
-    console.log("----------| initialData.createInitialData() - depois do drop");
 
+    console.info("|----- Creating initial data in mongoDB");
     await Order.create({
         products: [
             {
@@ -28,7 +29,9 @@ export async function createInitialData() {
         },
         status: "APPROVED",
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        transactionId: uuidv4(),
+        serviceId: uuidv4()
     });
 
     await Order.create({
@@ -49,11 +52,12 @@ export async function createInitialData() {
         },
         status: "REJECTED",
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        transactionId: uuidv4(),
+        serviceId: uuidv4()
     });
 
     let initialData = await Order.find();
-    console.info(`----------| Initial data was created: ${JSON.stringify(initialData, undefined, 4)}`);
-    console.log("----------| initialData.createInitialData() - depois do Order.find()");
+    console.info(`|----- Initial data was created: ${JSON.stringify(initialData, undefined, 4)}`);
 
 }

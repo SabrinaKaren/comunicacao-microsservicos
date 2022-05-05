@@ -35,10 +35,7 @@ class UserService {
                 { expiresIn: "1d"}
             );
 
-            let response = {
-                status: httpStatus.SUCCESS,
-                accessToken
-            };
+            let response = { status: httpStatus.SUCCESS, accessToken };
 
             // log
             console.info(
