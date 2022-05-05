@@ -1,4 +1,4 @@
-import User from '../model/User.js';
+import User from "../model/User.js";
 
 class UserRepository {
 
@@ -6,7 +6,7 @@ class UserRepository {
         try {
             return await User.findOne({ where: { id } });
         } catch (error) {
-            console.error(error.message);
+            console.error(`|xxxxx Error when searching by id: ${error.message}`);
             return null;
         }
     }
@@ -15,7 +15,7 @@ class UserRepository {
         try {
             return await User.findOne({ where: { email } });
         } catch (error) {
-            console.error(error.message);
+            console.error(`|xxxxx Error when searching by email: ${error.message}`);
             return null;
         }
     }

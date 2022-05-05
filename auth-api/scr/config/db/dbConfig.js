@@ -1,8 +1,8 @@
-import Sequelize from 'sequelize';
+import Sequelize from "sequelize";
 
-const sequelize = new Sequelize('auth-db', 'admin', '123456', {
-    host: 'localhost',
-    dialect: 'postgres',
+const sequelize = new Sequelize("auth-db", "admin", "123456", {
+    host: "localhost",
+    dialect: "postgres",
     quoteIdentifiers: false,
     define: {
         syncOnAssociation: true,
@@ -15,9 +15,9 @@ const sequelize = new Sequelize('auth-db', 'admin', '123456', {
 
 sequelize.authenticate()
     .then(() => {
-        console.info('Conection has been stablished!');
+        console.info("|----- Conection has been stablished!");
     }).catch((error) => {
-        console.error('Unable to connect to the database!');
+        console.error("|xxxxx Unable to connect to the database!");
         console.error(error.message);
     });
 

@@ -1,20 +1,20 @@
-import jwt from 'jsonwebtoken';
-import { promisify } from 'util';
-import * as secrets from '../constants/secrets.js';
-import * as httpStatus from '../../config/constants/httpStatus.js';
-import AuthException from './AuthException.js';
+import jwt from "jsonwebtoken";
+import { promisify } from "util";
+import * as secrets from "../constants/secrets.js";
+import * as httpStatus from "../../config/constants/httpStatus.js";
+import AuthException from "./AuthException.js";
 
-const bearer = 'bearer';
+const bearer = "bearer";
 
 export default async (req, res, next) => {
 
     try {
 
         const { authorization } = req.headers;
-        if (!authorization) throw new AuthException(httpStatus.UNAUTHORIZED, 'Access token was not informed.');
+        if (!authorization) throw new AuthException(httpStatus.UNAUTHORIZED, "Access token was not informed.");
 
         let accessToken = authorization;
-        if (accessToken.includes(' ')) accessToken = accessToken.split(' ')[1];
+        if (accessToken.includes(" ")) accessToken = accessToken.split(" ")[1];
 
         const decoded = await promisify(jwt.verify)(accessToken, secrets.API_SECRET);
         req.authUser = decoded.authUser;

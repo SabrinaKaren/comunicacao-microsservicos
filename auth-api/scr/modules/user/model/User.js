@@ -1,8 +1,8 @@
-import Sequelize from 'sequelize';
-import sequelize from '../../../config/db/dbConfig.js';
+import Sequelize from "sequelize";
+import sequelize from "../../../config/db/dbConfig.js";
 
 const User = sequelize.define(
-    'user',
+    "user",
     {
         id: {
             type: Sequelize.INTEGER,
