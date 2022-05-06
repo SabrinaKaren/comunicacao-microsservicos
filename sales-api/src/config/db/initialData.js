@@ -30,8 +30,8 @@ export async function createInitialData() {
         status: "APPROVED",
         createdAt: new Date(),
         updatedAt: new Date(),
-        transactionId: uuidv4(),
-        serviceId: uuidv4()
+        transactionid: uuidv4(),
+        serviceid: uuidv4()
     });
 
     await Order.create({
@@ -53,8 +53,8 @@ export async function createInitialData() {
         status: "REJECTED",
         createdAt: new Date(),
         updatedAt: new Date(),
-        transactionId: uuidv4(),
-        serviceId: uuidv4()
+        transactionid: uuidv4(),
+        serviceid: uuidv4()
     });
 
     let initialData = await Order.find();

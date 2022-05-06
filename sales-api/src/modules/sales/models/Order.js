@@ -24,11 +24,11 @@ const OrderSchema = new Schema({
         type: Date,
         required: true
     },
-    transactionId: {
+    transactionid: {
         type: String,
         required: true
     },
-    serviceId: {
+    serviceid: {
         type: String,
         required: true
     }
